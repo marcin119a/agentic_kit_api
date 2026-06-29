@@ -29,7 +29,8 @@ async def main():
     
     result = await Runner.run(
         unsafe_agent,
-        question
+        question,
+        max_turns=3
     )
     print("Agent run completed.")
     print("Result:", result.final_output)
@@ -43,11 +44,12 @@ async def main():
     
     try: 
         print("Safe FAQ Agent built successfully.")
-        question = "Ile kosztuje nadbagaż na trasie Warszawa-Londyn?"
+        question = "Czy mogę zabrać psa na pokład?"
         
         result = await Runner.run(
             safe_agent,
-            question
+            question,
+            max_turns=3,
         )
         print("Agent run completed.")
         print("Result:", result.final_output)
