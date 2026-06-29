@@ -11,8 +11,7 @@ FAQCategory = Literal[
     "refunds",
     "delays",
     "pets",
-    "special_assistance",
-    "other",
+    "special_assistance"
 ]
 @function_tool
 def search_airline_faq(category: FAQCategory) -> dict:
