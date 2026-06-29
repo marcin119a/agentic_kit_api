@@ -5,6 +5,8 @@ from agents import Runner, OpenAIChatCompletionsModel
 
 from app.faq_unsafe.agent import build_unsafe_agent
 from app.faq_safe.agent import build_safe_agent
+from app.triage.agent import build_triage_agent
+from app.escalation.agent import build_escalation_agent
 from app.faq_safe.guardrail import build_hallucination_guardrail, build_hallucination_guardrail_agent
 from config import Settings
 from llm import build_openai_client
@@ -41,18 +43,17 @@ async def main():
 
     unsafe_agent = build_unsafe_agent(model)
     safe_agent = build_safe_agent(model, hallucination_guardrail)
+    escalation_agent = build_escalation_agent(model)
     
+    triage_agent = build_triage_agent(model, safe_agent, escalation_agent)
     try: 
-        print("Safe FAQ Agent built successfully.")
-        question = "Czy mogę zabrać psa na pokład?"
-        
-        result = await Runner.run(
-            safe_agent,
-            question,
-            max_turns=3,
+        triage_results = await Runner.run(
+            triage_agent,
+            "Chcę złożyć reklamację i odszkodowanie za odwołany lot."
         )
-        print("Agent run completed.")
-        print("Result:", result.final_output)
+        print("Triage Agent run completed.")
+        print("Result:", triage_results.final_output)
+        #print("Agent",  triage_results.last_agent)
     except Exception as e:
         print("An error occurred while running the safe agent:", str(e))
 
