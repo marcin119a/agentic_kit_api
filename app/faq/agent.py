@@ -5,6 +5,8 @@ from config import Settings
 from app.faq.models import FAQOutput
 from app.faq.tools import search_airline_faq
 from agents.mcp import MCPServerStreamableHttp
+from agents import Agent, ModelSettings, OpenAIChatCompletionsModel
+
 
 
 
@@ -57,6 +59,10 @@ def build_faq_agent(openai_client: AsyncOpenAI, settings: Settings) -> Agent:
            model=settings.model_name,
            openai_client=openai_client,
        ),
+      model_settings=ModelSettings(
+         temperature=0.0,
+      ),
        output_type=FAQOutput,
        mcp_servers=[mcp_helper_server],
+       
    ), mcp_helper_server

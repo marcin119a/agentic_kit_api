@@ -32,3 +32,6 @@ dist/
 
 # data 
 data/
+
+# Temporary files
+*.db*
