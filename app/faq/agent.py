@@ -4,6 +4,11 @@ from openai import AsyncOpenAI
 from config import Settings
 from app.faq.models import FAQOutput
 from app.faq.tools import search_airline_faq
+from agents.mcp import MCPServerStreamableHttp
+
+
+
+
 
 FAQ_AGENT_INSTRUCTIONS = """
 Jesteś agentem FAQ linii lotniczej.
@@ -19,7 +24,7 @@ Dostępne kategorie FAQ:
 
 Twoje zadania:
 1. Na podstawie własnego rozumienia pytania (nie dopasowania słów kluczowych) wybierz
-   najbardziej trafną kategorię z listy powyżej i wywołaj search_airline_faq z tą kategorią,
+   najbardziej trafną kategorię z listy powyżej i wywołaj MCP Server z tą kategorią,
    aby pobrać oficjalną treść FAQ.
 2. Jeśli pytanie nie dotyczy żadnej z powyższych kategorii, ustaw category="other",
    nie wywołuj narzędzia i zasugeruj kontakt z konsultantem.
@@ -37,7 +42,14 @@ Zwróć odpowiedź w strukturze FAQOutput:
 - needs_human_support: czy potrzebny konsultant
 """
 
+
+
 def build_faq_agent(openai_client: AsyncOpenAI, settings: Settings) -> Agent:
+   mcp_helper_server = MCPServerStreamableHttp(
+      name="My MCP Server",
+      params={"url": settings.mcp_url},  # http://127.0.0.1:8001/mcp
+   )
+
    return Agent(
        name="AirlineFAQAgent",
        instructions=FAQ_AGENT_INSTRUCTIONS,
@@ -46,5 +58,5 @@ def build_faq_agent(openai_client: AsyncOpenAI, settings: Settings) -> Agent:
            openai_client=openai_client,
        ),
        output_type=FAQOutput,
-       tools=[search_airline_faq],
-   )
+       mcp_servers=[mcp_helper_server],
+   ), mcp_helper_server
