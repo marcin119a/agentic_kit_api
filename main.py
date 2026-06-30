@@ -1,7 +1,8 @@
+from datetime import datetime
 import os 
 import asyncio
 
-from agents import Runner, OpenAIChatCompletionsModel
+from agents import Runner, OpenAIChatCompletionsModel, SQLiteSession
 
 from app.faq_unsafe.agent import build_unsafe_agent
 from app.faq_safe.agent import build_safe_agent
@@ -18,6 +19,8 @@ os.environ["OPENAI_API_KEY"] = settings.openai_api_key
 
 
 async def main():
+    session = SQLiteSession(f"unsafe_demo{datetime.now()}", "session.db")
+
     openai_client = build_openai_client(settings)
     
     model = OpenAIChatCompletionsModel(
@@ -35,10 +38,20 @@ async def main():
     try: 
         triage_results = await Runner.run(
             triage_agent,
-            "Chcę złożyć reklamację i odszkodowanie za odwołany lot."
+            "Chcę złożyć reklamację",
+            session=session
         )
         print("Triage Agent run completed.")
         print("Result:", triage_results.final_output)
+
+        ones_again = await Runner.run(
+            triage_agent,
+            "Chodzi mi o odszkodowanie za odwołany lot.",
+            session=session
+        )
+        print("Triage Agent run completed.")
+        print("Result:", ones_again.final_output)
+
         #print("Agent",  triage_results.last_agent)
     except Exception as e:
         print("An error occurred while running the safe agent:", str(e))
