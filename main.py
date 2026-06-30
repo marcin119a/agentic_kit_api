@@ -2,13 +2,14 @@ from datetime import datetime
 import os 
 import asyncio
 
-from agents import Runner, OpenAIChatCompletionsModel, SQLiteSession
+from agents import Runner, OpenAIChatCompletionsModel
 
 from app.faq_unsafe.agent import build_unsafe_agent
 from app.faq_safe.agent import build_safe_agent
 from app.triage.agent import build_triage_agent
 from app.escalation.agent import build_escalation_agent
 from app.faq_safe.guardrail import build_hallucination_guardrail, build_hallucination_guardrail_agent
+from app.memory import PassengerSQLiteSession
 from config import Settings
 from llm import build_openai_client
 
@@ -19,7 +20,8 @@ os.environ["OPENAI_API_KEY"] = settings.openai_api_key
 
 
 async def main():
-    session = SQLiteSession(f"unsafe_demo{datetime.now()}", "session.db")
+    session = PassengerSQLiteSession(f"unsafe_demo{datetime.now()}", passenger_id="demo_passenger", db_path="session.db")
+    await session.remember_fact("Pasażer jest kobietą")
 
     openai_client = build_openai_client(settings)
     
