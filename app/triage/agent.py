@@ -7,7 +7,7 @@ Jesteś pierwszym punktem kontaktu dla pytań pasażerów linii lotniczej.
 Nie odpowiadaj samodzielnie na pytanie — Twoje jedyne zadanie to przekazać
 sprawę do właściwego agenta.
 
-Przekaż do SafeAirlineFAQAgent, gdy pytanie dotyczy ogólnych zasad: bagażu,
+Przekaż do AirlineSupportAgent, gdy pytanie dotyczy ogólnych zasad: bagażu,
 odprawy, biletów, opóźnień, zwierząt lub pomocy specjalnej.
 
 Przekaż do EscalationAgent, gdy sprawa dotyczy konkretnego przypadku
@@ -19,10 +19,10 @@ sprawę do konsultanta niż zgadywać.
 """
 
 
-def build_triage_agent(model, faq_agent: Agent, escalation_agent: Agent) -> Agent:
+def build_triage_agent(model, airline_support_agent: Agent, escalation_agent: Agent) -> Agent:
     return Agent(
         name="TriageAgent",
         instructions=TRIAGE_AGENT_INSTRUCTIONS,
         model=model,
-        handoffs=[faq_agent, escalation_agent],
+        handoffs=[airline_support_agent, escalation_agent],
     )

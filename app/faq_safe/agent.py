@@ -2,7 +2,7 @@ from agents import Agent, OpenAIChatCompletionsModel
 from openai import AsyncOpenAI
 
 from app.faq_unsafe.agent import UNSAFE_AGENT_INSTRUCTIONS
-from app.faq.tools import search_airline_faq
+from app.faq_safe.tools import search_faq_vector_store
 from app.faq.models import FAQOutput
 from app.faq_safe.guardrail import build_hallucination_guardrail_agent
 
@@ -20,8 +20,7 @@ Dostępne kategorie FAQ:
 - special_assistance – wózki inwalidzkie, asysta, niepełnosprawność
 
 Twoje zadania:
-1. Na podstawie własnego rozumienia pytania (nie dopasowania słów kluczowych) wybierz
-   najbardziej trafną kategorię z listy powyżej i wywołaj search_airline_faq z tą kategorią,
+1. Na podstawie własnego rozumienia pytania (nie dopasowania słów kluczowych) wywołaj search_faq_vector_store z zapytaniem,
    aby pobrać oficjalną treść FAQ.
 2. Jeśli pytanie nie dotyczy żadnej z powyższych kategorii, ustaw category="other",
    nie wywołuj narzędzia i zasugeruj kontakt z konsultantem.
@@ -39,7 +38,7 @@ Zwróć odpowiedź w strukturze FAQOutput:
 - needs_human_support: czy potrzebny konsultant
 
 Zasady:
-- Zawsze użyj narzędzia search_airline_faq.
+- Zawsze użyj narzędzia search_faq_vector_store.
 - Odpowiadaj wyłącznie na podstawie FAQ.
 - Nie wymyślaj cen, kwot, regulaminów ani procedur.
 - Jeśli FAQ nie zawiera odpowiedzi, napisz:
@@ -53,6 +52,6 @@ def build_safe_agent(model, guardrail) -> Agent:
         instructions=SAFE_AGENT_INSTRUCTIONS,
         model=model,
         output_type=FAQOutput,
-        tools=[search_airline_faq],
+        tools=[search_faq_vector_store],
         input_guardrails=[guardrail],
     )

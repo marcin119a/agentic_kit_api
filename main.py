@@ -4,7 +4,7 @@ import asyncio
 
 from agents import Runner, OpenAIChatCompletionsModel
 
-from app.faq_unsafe.agent import build_unsafe_agent
+from app.support.agent import build_support_agent
 from app.faq_safe.agent import build_safe_agent
 from app.triage.agent import build_triage_agent
 from app.escalation.agent import build_escalation_agent
@@ -21,7 +21,7 @@ os.environ["OPENAI_API_KEY"] = settings.openai_api_key
 
 async def main():
     session = PassengerSQLiteSession(f"unsafe_demo{datetime.now()}", passenger_id="demo_passenger", db_path="session.db")
-    await session.remember_fact("Pasażer jest kobietą")
+    # await session.remember_fact("Pasażer jest kobietą")
 
     openai_client = build_openai_client(settings)
     
@@ -35,13 +35,16 @@ async def main():
 
     safe_agent = build_safe_agent(model, hallucination_guardrail)
     escalation_agent = build_escalation_agent(model)
+
+    support_agent = build_support_agent(model, safe_agent)
     
-    triage_agent = build_triage_agent(model, safe_agent, escalation_agent)
+    triage_agent = build_triage_agent(model, support_agent, escalation_agent)
     try: 
         triage_results = await Runner.run(
             triage_agent,
-            "Chcę złożyć reklamację",
-            session=session
+            "Ile bagażu podręcznego mogę zabrać na pokład?",
+            session=session,
+            max_turns=3
         )
         print("Triage Agent run completed.")
         print("Result:", triage_results.final_output)
@@ -49,7 +52,8 @@ async def main():
         ones_again = await Runner.run(
             triage_agent,
             "Chodzi mi o odszkodowanie za odwołany lot.",
-            session=session
+            session=session,
+            max_turns=3
         )
         print("Triage Agent run completed.")
         print("Result:", ones_again.final_output)

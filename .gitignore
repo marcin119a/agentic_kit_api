@@ -29,3 +29,6 @@ dist/
 
 # DB
 *.db
+
+# data 
+data/

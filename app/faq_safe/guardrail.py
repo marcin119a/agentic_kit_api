@@ -8,7 +8,7 @@ from agents import (
 from agents.items import TResponseInputItem
 
 from app.faq_safe.models import HallucinationOutput
-from app.faq.tools import search_airline_faq
+from app.faq_safe.tools import search_faq_vector_store
 
 
 HALLUCINATION_GUARDRAIL_INSTRUCTIONS = """
@@ -34,7 +34,7 @@ def build_hallucination_guardrail_agent(model) -> Agent:
         instructions=HALLUCINATION_GUARDRAIL_INSTRUCTIONS,
         model=model,
         output_type=HallucinationOutput,
-        tools=[search_airline_faq],
+        tools=[search_faq_vector_store],
     )
 
 
